@@ -1,0 +1,122 @@
+<% layout("layouts/boilerplate") %>
+<div class="row show-listing">
+  <div class="col-12 col-md-8 offset-md-2">
+    <h2 class="listing-title"><%= listing.title %></h2>
+
+    <img
+      src="<%= listing.image.url %>"
+      class="show-img img-fluid rounded-4 my-3"
+      alt="listing_image"
+    />
+
+    <p class="owner-line">
+      Owned by <i><%= listing.owner ? listing.owner.username : "unknown" %></i>
+    </p>
+
+    <p class="listing-desc"><%= listing.description %></p>
+    <p class="listing-price">&#8377; <%= listing.price.toLocaleString("en-IN") %> / night</p>
+    <p class="listing-location"><%= listing.location %></p>
+    <p class="listing-country"><%= listing.country %></p>
+
+    <% if (currUser && listing.owner && currUser._id.equals(listing.owner._id)) { %>
+    <div class="btn-group my-3" role="group">
+      <a href="/listings/<%= listing._id %>/edit" class="btn btn-outline-dark edit-btn">
+        <i class="bi bi-pencil-square"></i> Edit
+      </a>
+      <form method="POST" action="/listings/<%= listing._id %>?_method=DELETE">
+        <button class="btn btn-outline-danger delete-btn">
+          <i class="bi bi-trash"></i> Delete
+        </button>
+      </form>
+    </div>
+    <% } %>
+
+    <hr />
+
+    <h3 class="mt-4">Where you'll be</h3>
+    <div id="map" class="map-box"></div>
+
+    <hr />
+
+    <% if (currUser) { %>
+    <h3 class="mt-4">Leave a review</h3>
+    <form action="/listings/<%= listing._id %>/reviews" method="POST" class="needs-validation review-form" novalidate>
+      <div class="mb-3">
+        <label for="rating" class="form-label">Rating</label>
+        <fieldset class="starability-basic">
+          <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="1" checked aria-label="No rating." />
+          <input type="radio" id="rate1" name="review[rating]" value="1" />
+          <label for="rate1" title="Terrible">1 star</label>
+          <input type="radio" id="rate2" name="review[rating]" value="2" />
+          <label for="rate2" title="Not good">2 stars</label>
+          <input type="radio" id="rate3" name="review[rating]" value="3" />
+          <label for="rate3" title="Average">3 stars</label>
+          <input type="radio" id="rate4" name="review[rating]" value="4" />
+          <label for="rate4" title="Very good">4 stars</label>
+          <input type="radio" id="rate5" name="review[rating]" value="5" />
+          <label for="rate5" title="Amazing">5 stars</label>
+        </fieldset>
+      </div>
+      <div class="mb-3">
+        <label for="comment" class="form-label">Comments</label>
+        <textarea
+          name="review[comment]"
+          id="comment"
+          class="form-control"
+          rows="4"
+          required
+        ></textarea>
+        <div class="invalid-feedback">Please add a comment.</div>
+      </div>
+      <button class="btn submit-btn">Submit</button>
+    </form>
+    <% } %>
+
+    <hr />
+
+    <% if (listing.reviews.length > 0) { %>
+    <h3 class="mt-4">All reviews (<%= listing.reviews.length %>)</h3>
+    <div class="row">
+      <% for (let review of listing.reviews) { %>
+      <div class="col-md-6 mb-3">
+        <div class="card review-card h-100">
+          <div class="card-body">
+            <h5 class="card-title">
+              <%= review.author ? review.author.username : "Anonymous" %>
+            </h5>
+            <p class="starability-result" data-rating="<%= review.rating %>">
+              Rated: <%= review.rating %> stars
+            </p>
+            <p class="card-text"><%= review.comment %></p>
+          </div>
+          <% if (currUser && review.author && currUser._id.equals(review.author._id)) { %>
+          <form
+            action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE"
+            method="POST"
+            class="card-footer bg-transparent border-0"
+          >
+            <button class="btn btn-sm btn-outline-danger">
+              <i class="bi bi-trash"></i> Delete
+            </button>
+          </form>
+          <% } %>
+        </div>
+      </div>
+      <% } %>
+    </div>
+    <% } %>
+  </div>
+</div>
+
+<link
+  href="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css"
+  rel="stylesheet"
+/>
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js"></script>
+<div
+  id="map-data"
+  data-token="<%= mapToken %>"
+  data-listing="<%= JSON.stringify(listing) %>"
+  hidden
+></div>
+<script src="/js/map.js"></script>
