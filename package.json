@@ -1,4 +1,7 @@
 {
+  "engines": {
+    "node": "20.20.2"
+  },
   "name": "wanderlust",
   "version": "1.0.0",
   "description": "WanderLust - an Airbnb-style listings app (Express, MongoDB, EJS)",
