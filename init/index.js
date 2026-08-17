@@ -1,3 +1,6 @@
+const dns = require("dns");
+dns.setServers(["8.8.8.8"]);
+
 if (process.env.NODE_ENV != "production") {
   require("dotenv").config();
 }
@@ -7,7 +10,7 @@ const initData = require("./data.js");
 const Listing = require("../models/listing.js");
 const User = require("../models/user.js");
 
-const dbUrl = process.env.ATLASDB_URL || "mongodb://127.0.0.1:27017/wanderlust";
+const dbUrl = process.env.ATLASDB_URL; // || "mongodb://127.0.0.1:27017/wanderlust";
 
 main()
   .then(() => {
@@ -20,6 +23,9 @@ main()
 
 async function main() {
   await mongoose.connect(dbUrl);
+
+  console.log("Connected host:", mongoose.connection.host);
+  console.log("Connected database:", mongoose.connection.name);
 }
 
 const initDB = async () => {
